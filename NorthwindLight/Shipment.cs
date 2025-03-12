@@ -13,4 +13,5 @@ public class Shipment
   public int SequenceNr { get; set; }
   public int EmployeeId { get; set; }
   public Employee Employee { get; set; } = null!;
+  public List<Order> Orders { get; set; } = null!;
 }

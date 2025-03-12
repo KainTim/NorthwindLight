@@ -18,6 +18,7 @@ namespace NorthwindLightWpf;
 public partial class MainWindow : Window
 {
   NorthwindLightContext db;
+  private int _sequence = 1;
   public MainWindow()
   {
     InitializeComponent();
@@ -31,6 +32,12 @@ public partial class MainWindow : Window
     SeedData();
     DisplayProducts();
     DisplayTreeView();
+    DisplayFilteredEmployees();
+    dtpDeliveryDate.SelectedDate = DateTime.Today;
+  }
+
+  private void DisplayFilteredEmployees(){
+    lsbEmployees.ItemsSource = db.Employees.Where(x=>x.LastName.ToLower().Contains(txtEmployees.Text.ToLower())).ToList();
   }
 
   private void DisplayTreeView() {
@@ -221,5 +228,63 @@ public partial class MainWindow : Window
     });
     db.SaveChanges();
     DisplayProducts();
+  }
+
+  private void txtEmployees_TextChanged(object sender, TextChangedEventArgs e)
+  {
+    DisplayFilteredEmployees();
+    DisplayShipments();
+  }
+
+  private void ButtonSelectEmployee_Click(object sender, RoutedEventArgs e)
+  {
+    var selectedEmployee = txtEmployees.Tag as Employee;
+    if (selectedEmployee == null) return;
+    if (dtpDeliveryDate.SelectedDate == null) return;
+    var selectedOrder = ((trvCustomers.SelectedItem as TreeViewItem)?.Tag as Order)??null;
+    if (selectedOrder == null) return;
+    if (selectedOrder.Shipment != null) return;
+    db.Shipments.Add(new Shipment()
+    {
+      PlanDate = (DateTime)dtpDeliveryDate.SelectedDate!,
+      Employee = selectedEmployee,
+      SequenceNr = _sequence,
+    });
+    db.SaveChanges();
+    db.Orders.Single(x=>x.Id == selectedOrder.Id).ShipmentId = _sequence;
+    db.SaveChanges();
+    _sequence++;
+    DisplayShipments();
+  }
+
+  private void lsbEmployees_SelectionChanged(object sender, SelectionChangedEventArgs e)
+  {
+    if (lsbEmployees.SelectedItem == null) return;
+    txtEmployees.Tag = lsbEmployees.SelectedItem;
+    txtEmployees.Text = (lsbEmployees.SelectedItem as Employee)?.Name??"Unknown";
+    DisplayShipments();
+  }
+
+  private void DisplayShipments() {
+    var selectedEmployee = txtEmployees.Tag as Employee;
+    if (selectedEmployee == null)
+    {
+      dgShipments.ItemsSource = db.Shipments
+        .Where(x => dtpDeliveryDate.SelectedDate == null ? true : dtpDeliveryDate.SelectedDate == x.PlanDate)
+        .Select(DgRow.FromShipment)
+        .ToList();
+      return;
+    }
+    var shipments = db.Shipments
+      .Where(x => x.EmployeeId == selectedEmployee.Id)
+      .Where(x => dtpDeliveryDate.SelectedDate == null ? true : dtpDeliveryDate.SelectedDate == x.PlanDate)
+      .Select(DgRow.FromShipment)
+      .ToList();
+    dgShipments.ItemsSource = shipments;
+  }
+
+  private void dtpDeliveryDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+  {
+    DisplayShipments();
   }
 }
