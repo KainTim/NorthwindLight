@@ -5,8 +5,46 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NorthwindLightWpf"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
+        Title="MainWindow" Height="450" Width="800"
+        Loaded="Window_Loaded">
+  <Grid>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="270"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="25"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="4*"/>
+      <ColumnDefinition Width="5*"/>
+      <ColumnDefinition Width="2*"/>
+    </Grid.ColumnDefinitions>
+    <TreeView Name="trvCustomers" Grid.Row="0" />
+    <DockPanel Grid.Column="2">
+      <Label DockPanel.Dock="Top" Content="Products"/>
+      <TextBox DockPanel.Dock="Bottom" Name="txtProduct"/>
+      <Button DockPanel.Dock="Bottom" Content="Add New Product" Click="ButtonAddProduct_Click"/>
+      <ListBox Name="lsbProducts" DisplayMemberPath="Description"/>
+    </DockPanel>
+    <Grid Grid.Column="1" Grid.Row="0">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="25"/>
+        <RowDefinition Height="25"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="80"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label Content="Lieferdatum:" Grid.Row="0" Grid.Column="0" />
+      <TextBox Grid.Row="0" Grid.Column="1" />
+      <Button Content="Mitarbeiter zuweisen" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Top" />
+      <Label Content="Mitarbeiter filtern:" Grid.Row="0" Grid.Column="2"/>
+      <TextBox Grid.Row="1" Grid.Column="2" />
+      <ListBox Grid.Row="2" Grid.Column="2" />
     </Grid>
+    <DataGrid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" />
+    <Label Grid.Row="2" Grid.Column="0" />
+    <Label Grid.Row="2" Grid.Column="1" HorizontalContentAlignment="Right" />
+  </Grid>
 </Window>
